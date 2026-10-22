@@ -256,6 +256,7 @@
       <p class="subtitle">Choose the best answer, space explorer.</p>
       <div id="answers" class="answers" role="group" aria-label="Answer choices"></div>
       <p id="feedback" class="feedback" aria-live="assertive"></p>
+      <button id="next-question" class="restart hidden" type="button">Next question</button>
     </section>
 
     <section id="results-card" class="card results hidden" aria-labelledby="results-title" tabindex="-1">
@@ -274,16 +275,16 @@
       "use strict";
 
       const questions = [
-        { question: "Which planet is known as the Red Planet?", answers: ["Venus", "Mars", "Jupiter", "Mercury"], correct: 1 },
-        { question: "What is the name of our galaxy?", answers: ["Andromeda", "Whirlpool", "Milky Way", "Sombrero"], correct: 2 },
-        { question: "Which object sits at the center of our solar system?", answers: ["The Sun", "Earth", "The Moon", "Polaris"], correct: 0 },
-        { question: "What was the first human-made satellite called?", answers: ["Voyager 1", "Sputnik 1", "Apollo 11", "Hubble"], correct: 1 },
-        { question: "How many moons does Earth have?", answers: ["One", "Two", "Twelve", "None"], correct: 0 },
-        { question: "What force keeps planets in orbit around the Sun?", answers: ["Magnetism", "Friction", "Gravity", "Light"], correct: 2 },
-        { question: "Which planet has the most prominent ring system?", answers: ["Saturn", "Neptune", "Uranus", "Mars"], correct: 0 },
-        { question: "What is a light-year a measurement of?", answers: ["Time", "Brightness", "Distance", "Temperature"], correct: 2 },
-        { question: "Which telescope launched in 2021 observes deep space?", answers: ["Kepler", "James Webb", "Galileo", "Spitzer"], correct: 1 },
-        { question: "What do astronauts wear outside a spacecraft?", answers: ["A pressure suit", "A flight jacket", "A diving suit", "A thermal blanket"], correct: 0 }
+        { question: "Which planet is known as the Red Planet?", answers: ["Venus", "Mars", "Jupiter", "Mercury"], correct: 1, explanation: "Mars looks reddish because iron minerals in its surface have oxidized, or rusted." },
+        { question: "What is the name of our galaxy?", answers: ["Andromeda", "Whirlpool", "Milky Way", "Sombrero"], correct: 2, explanation: "The Milky Way is a barred spiral galaxy containing our Sun and billions of other stars." },
+        { question: "Which object sits at the center of our solar system?", answers: ["The Sun", "Earth", "The Moon", "Polaris"], correct: 0, explanation: "The Sun is the star at the center of our solar system, and its gravity keeps the planets in orbit." },
+        { question: "What was the first human-made satellite called?", answers: ["Voyager 1", "Sputnik 1", "Apollo 11", "Hubble"], correct: 1, explanation: "The Soviet Union launched Sputnik 1 in 1957, beginning the Space Age." },
+        { question: "How many moons does Earth have?", answers: ["One", "Two", "Twelve", "None"], correct: 0, explanation: "Earth has one natural satellite: the Moon." },
+        { question: "What force keeps planets in orbit around the Sun?", answers: ["Magnetism", "Friction", "Gravity", "Light"], correct: 2, explanation: "The Sun's gravity pulls planets inward while their forward motion keeps them moving around it." },
+        { question: "Which planet has the most prominent ring system?", answers: ["Saturn", "Neptune", "Uranus", "Mars"], correct: 0, explanation: "Saturn's bright, extensive rings are made mostly of ice, rock, and dust particles." },
+        { question: "What is a light-year a measurement of?", answers: ["Time", "Brightness", "Distance", "Temperature"], correct: 2, explanation: "A light-year is the distance light travels in one year, about 9.46 trillion kilometers." },
+        { question: "Which telescope launched in 2021 observes deep space?", answers: ["Kepler", "James Webb", "Galileo", "Spitzer"], correct: 1, explanation: "The James Webb Space Telescope studies distant galaxies, stars, and planets mainly in infrared light." },
+        { question: "What do astronauts wear outside a spacecraft?", answers: ["A pressure suit", "A flight jacket", "A diving suit", "A thermal blanket"], correct: 0, explanation: "A spacesuit provides oxygen, pressure, temperature control, and protection from space hazards." }
       ];
 
       const quizCard = document.getElementById("quiz-card");
@@ -296,6 +297,7 @@
       const progressPercent = document.getElementById("progress-percent");
       const progressValue = document.getElementById("progress-value");
       const progressBar = document.querySelector(".progress-track");
+      const nextQuestion = document.getElementById("next-question");
       const resultReaction = document.getElementById("reaction");
       const resultTitle = document.getElementById("results-title");
       const resultCopy = document.getElementById("results-copy");
@@ -317,6 +319,7 @@
         scoreEl.textContent = score;
         feedbackEl.textContent = "";
         feedbackEl.className = "feedback";
+        nextQuestion.classList.add("hidden");
         answersEl.innerHTML = "";
 
         item.answers.forEach((answer, index) => {
@@ -340,19 +343,23 @@
         if (selected === item.correct) {
           score++;
           scoreEl.textContent = score;
-          feedbackEl.textContent = "Correct — stellar navigation! ✨";
+          feedbackEl.textContent = `Correct — stellar navigation! ✨ Explanation: ${item.explanation}`;
           feedbackEl.className = "feedback correct";
         } else {
           buttons[selected].classList.add("wrong", "shake");
-          feedbackEl.textContent = `Not quite — the answer is ${item.answers[item.correct]}.`;
+          feedbackEl.textContent = `Not quite — the answer is ${item.answers[item.correct]}. Explanation: ${item.explanation}`;
           feedbackEl.className = "feedback wrong";
         }
 
-        window.setTimeout(() => {
-          current++;
-          if (current < questions.length) renderQuestion();
-          else showResults();
-        }, 900);
+        nextQuestion.textContent = current === questions.length - 1 ? "View results" : "Next question";
+        nextQuestion.classList.remove("hidden");
+        nextQuestion.focus();
+      }
+
+      function advanceQuestion() {
+        current++;
+        if (current < questions.length) renderQuestion();
+        else showResults();
       }
 
       function showResults() {
@@ -381,6 +388,8 @@
 
         window.requestAnimationFrame(update);
       }
+
+      nextQuestion.addEventListener("click", advanceQuestion);
 
       restart.addEventListener("click", () => {
         current = 0;
