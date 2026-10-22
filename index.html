@@ -223,6 +223,17 @@
     }
     .restart:hover { background: var(--accent-dark); transform: translateY(-2px); }
     .hidden { display: none; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
     @media (max-width: 520px) {
       main { width: min(100% - 1rem, 760px); padding-top: 1.4rem; }
@@ -265,6 +276,7 @@
       <h2 id="results-title">Stellar work!</h2>
       <p id="results-copy"></p>
       <div id="result-score" class="result-score"></div>
+      <p id="results-announcement" class="sr-only" aria-live="polite" aria-atomic="true"></p>
       <br>
       <button id="restart" class="restart" type="button">Launch again</button>
     </section>
@@ -302,6 +314,7 @@
       const resultTitle = document.getElementById("results-title");
       const resultCopy = document.getElementById("results-copy");
       const resultScore = document.getElementById("result-score");
+      const resultsAnnouncement = document.getElementById("results-announcement");
       const restart = document.getElementById("restart");
       let current = 0;
       let score = 0;
@@ -320,6 +333,7 @@
         feedbackEl.textContent = "";
         feedbackEl.className = "feedback";
         nextQuestion.classList.add("hidden");
+        resultsAnnouncement.textContent = "";
         answersEl.innerHTML = "";
 
         item.answers.forEach((answer, index) => {
@@ -368,6 +382,7 @@
         resultReaction.textContent = reaction;
         resultTitle.textContent = ratio === 1 ? "Perfect orbit!" : ratio >= .7 ? "Stellar work!" : ratio >= .4 ? "Nice flight!" : "Keep exploring!";
         resultCopy.textContent = `You navigated ${questions.length} cosmic questions and scored ${score} ${score === 1 ? "point" : "points"}.`;
+        resultsAnnouncement.textContent = `${resultTitle.textContent} Final score: ${score} out of ${questions.length}.`;
         animateResultScore();
         quizCard.classList.add("hidden");
         resultsCard.classList.remove("hidden");
